@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busfahrplan</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        #bus-info { font-size: 24px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Willkommen! Dein nächster Bus:</h1>
+    <div id="bus-info">Lade...</div>
+
+    <script>
+        // Hier definierst du deine Busfahrpläne
+        const busSchedule = [
+            { time: "06:06", bus: "Bus A" },
+            { time: "07:06", bus: "Bus B" },
+            { time: "08:06", bus: "Bus C" },
+            // Füge weitere Zeiten und Busse hinzu
+        ];
+
+        function updateBusInfo() {
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            
+            let nextBus = "Kein Bus in nächster Zeit";
+            
+            for (let i = 0; i < busSchedule.length; i++) {
+                if (currentTime < busSchedule[i].time) {
+                    nextBus = `${busSchedule[i].bus} um ${busSchedule[i].time} Uhr`;
+                    break;
+                }
+            }
+            
+            document.getElementById("bus-info").innerText = nextBus;
+        }
+
+        // Initial einmal aufrufen und dann alle Minute aktualisieren
+        updateBusInfo();
+        setInterval(updateBusInfo, 60000); // Alle 60 Sekunden aktualisieren
+    </script>
+</body>
+</html>
