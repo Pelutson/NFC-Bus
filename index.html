@@ -12,7 +12,7 @@
   <script>
     async function fetchTrips() {
       try {
-        const response = await fetch("https://ba97-2003-e5-3f37-3c6c-cf92-e694-834-e132.ngrok-free.app/tripes");
+        const response = await fetch("https://ba97-2003-e5-3f37-3c6c-cf92-e694-834-e132.ngrok-free.app/trips");
         const trips = await response.json();
         const list = document.getElementById("trip-list");
         list.innerHTML = "";
