@@ -12,22 +12,22 @@
   <script>
     async function fetchTrips() {
       try {
-        const response = await fetch("https://DEIN-BACKEND-URL/trips");
+        const response = await fetch("https://DEIN-BACKEND-URL/trips"); // <--- HIER anpassen
         const trips = await response.json();
         const list = document.getElementById("trip-list");
-        list.innerHTML = \"\";
+        list.innerHTML = "";
 
         if (trips.length === 0) {
-          list.innerHTML = \"<li>Keine Verbindungen gefunden.</li>\";
+          list.innerHTML = "<li>Keine Verbindungen gefunden.</li>";
         } else {
           trips.forEach(trip => {
-            const li = document.createElement(\"li\");
+            const li = document.createElement("li");
             li.textContent = `${trip.line}: ${trip.departure} ➝ ${trip.arrival}`;
             list.appendChild(li);
           });
         }
       } catch (err) {
-        document.getElementById(\"trip-list\").innerHTML = `<li>Fehler beim Laden: ${err}</li>`;
+        document.getElementById("trip-list").innerHTML = `<li>Fehler beim Laden: ${err}</li>`;
       }
     }
 
