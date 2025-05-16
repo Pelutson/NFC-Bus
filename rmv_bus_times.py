@@ -55,15 +55,13 @@ def fetch_connections():
                 line = leg.find('hafas:Product', ns)
 
                 if origin is not None and destination is not None and line is not None:
-                    departure_raw = origin.attrib.get('time', '')
-                    print("DEBUG: Abfahrtszeit:", departure_raw)
-
-                    departure_time = departure_raw[11:16] if len(departure_raw) >= 16 else 'Unbekannt'
+                    time_attr = origin.attrib.get('time', '')
+                    departure_time = time_attr[11:16] if len(time_attr) >= 16 else 'Unbekannt'
 
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
                         'departure': departure_time,
-                        'destination': destination.attrib.get('name', ''),
+                        'destination': destination.attrib.get('name', 'Unbekannt'),
                     })
                 break  # Nur erste Fahrt
 
