@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Verbindungen Darmstadt Schloss ➝ Berliner Allee</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Verbindungen in den nächsten 10 Minuten</h1>
+  <ul id="trip-list">Lade Daten...</ul>
+
+  <script>
+    async function fetchTrips() {
+      try {
+        const response = await fetch("https://ba97-2003-e5-3f37-3c6c-cf92-e694-834-e132.ngrok-free.app/trips");
+        const trips = await response.json();
+        const list = document.getElementById("trip-list");
+        list.innerHTML = "";
+
+        if (trips.length === 0) {
+          list.innerHTML = "<li>Keine Verbindungen gefunden.</li>";
+        } else {
+          trips.forEach(trip => {
+            const li = document.createElement("li");
+            li.textContent = `${trip.line}: ${trip.departure} ➝ ${trip.arrival}`;
+            list.appendChild(li);
+          });
+        }
+      } catch (err) {
+        document.getElementById("trip-list").innerHTML = `<li>Fehler beim Laden: ${err}</li>`;
+      }
+    }
+
+    fetchTrips(); // beim Laden
+    setInterval(fetchTrips, 60000); // jede Minute automatisch
+  </script>
+</body>
+</html>
