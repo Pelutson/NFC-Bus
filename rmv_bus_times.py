@@ -2,14 +2,11 @@ from flask import Flask, render_template
 import requests
 from datetime import datetime
 import xml.etree.ElementTree as ET
-import os
+import os  # ← für Heroku wichtig
 
 app = Flask(__name__)
 
-
-
-ACCESS_ID = os.environ.get('ACCESS_ID')
-
+ACCESS_ID = os.environ.get("ACCESS_ID")  # ← aus Umgebungsvariablen lesen
 ORIGIN_ID = '3016016'  # Darmstadt Schloss
 DEST_ID = '3004735'    # Darmstadt Berliner Allee
 
@@ -42,7 +39,6 @@ def fetch_connections():
             if leg_list is None:
                 continue
 
-            # LegList kann entweder ein einzelnes Leg sein oder eine Liste
             legs = leg_list.findall('hafas:Leg', ns)
             if not legs:
                 leg = leg_list.find('hafas:Leg', ns)
@@ -55,19 +51,12 @@ def fetch_connections():
                 line = leg.find('hafas:Product', ns)
 
                 if origin is not None and destination is not None and line is not None:
-                    # Formatierte Abfahrtszeit (HH:MM)
-                    departure_iso = origin.attrib.get('dateTime')
-                    try:
-                        departure_time = datetime.fromisoformat(departure_iso).strftime('%H:%M')
-                    except:
-                        departure_time = origin.attrib.get('time', '')[:5]  # Fallback
-
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
-                        'departure': departure_time,
+                        'departure': origin.attrib.get('time', '')[11:16],
                         'destination': destination.attrib.get('name', ''),
                     })
-                break  # Nur die erste Fahrt betrachten
+                break  # Nur die erste Fahrt
 
         return connections
     except Exception as e:
@@ -79,5 +68,6 @@ def index():
     connections = fetch_connections()
     return render_template('index.html', connections=connections)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# WICHTIG für Heroku
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
