@@ -2,11 +2,15 @@ from flask import Flask, render_template
 import requests
 from datetime import datetime
 import xml.etree.ElementTree as ET
-import os  # ← für Heroku wichtig
+import os
+from dotenv import load_dotenv
+
+# .env-Datei laden (falls vorhanden)
+load_dotenv()
 
 app = Flask(__name__)
 
-ACCESS_ID = os.environ.get("ACCESS_ID")  # ← aus Umgebungsvariablen lesen
+ACCESS_ID = os.getenv('ACCESS_ID')  # aus .env-Datei
 ORIGIN_ID = '3016016'  # Darmstadt Schloss
 DEST_ID = '3004735'    # Darmstadt Berliner Allee
 
@@ -19,7 +23,7 @@ def fetch_connections():
         'format': 'xml',
         'date': datetime.now().strftime('%Y-%m-%d'),
         'time': datetime.now().strftime('%H:%M'),
-        'numF': 6,  # bis zu 6 Verbindungen
+        'numF': 6,
     }
 
     response = requests.get(url, params=params)
@@ -53,10 +57,10 @@ def fetch_connections():
                 if origin is not None and destination is not None and line is not None:
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
-                        'departure': origin.attrib.get('time', '')[11:16],
+                        'departure': origin.attrib.get('time', '')[11:16],  # Nur Uhrzeit (HH:MM)
                         'destination': destination.attrib.get('name', ''),
                     })
-                break  # Nur die erste Fahrt
+                break  # Nur erste Fahrt
 
         return connections
     except Exception as e:
@@ -68,6 +72,5 @@ def index():
     connections = fetch_connections()
     return render_template('index.html', connections=connections)
 
-# WICHTIG für Heroku
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+if __name__ == '__main__':
+    app.run(debug=True)
