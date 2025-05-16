@@ -5,12 +5,12 @@ import xml.etree.ElementTree as ET
 import os
 from dotenv import load_dotenv
 
-# .env-Datei laden (falls vorhanden)
+# .env laden
 load_dotenv()
 
 app = Flask(__name__)
 
-ACCESS_ID = os.getenv('ACCESS_ID')  # aus .env-Datei
+ACCESS_ID = os.getenv('ACCESS_ID')
 ORIGIN_ID = '3016016'  # Darmstadt Schloss
 DEST_ID = '3004735'    # Darmstadt Berliner Allee
 
@@ -34,7 +34,6 @@ def fetch_connections():
     try:
         root = ET.fromstring(response.content)
         ns = {'hafas': 'http://hacon.de/hafas/proxy/hafas-proxy'}
-
         trips = root.findall('.//hafas:Trip', ns)
         connections = []
 
@@ -54,22 +53,21 @@ def fetch_connections():
                 destination = leg.find('hafas:Destination', ns)
                 line = leg.find('hafas:Product', ns)
 
+                departure_time = "Unbekannt"
+                if origin is not None and 'time' in origin.attrib:
+                    try:
+                        dt = datetime.fromisoformat(origin.attrib['time'])
+                        departure_time = dt.strftime('%H:%M')
+                    except Exception as e:
+                        print("Zeitformat-Fehler:", e)
+
                 if origin is not None and destination is not None and line is not None:
-                    departure_time = 'Unbekannt'
-                    if 'time' in origin.attrib:
-                        try:
-                            dt = datetime.fromisoformat(origin.attrib['time'])
-                            departure_time = dt.strftime('%H:%M')
-                        except Exception as e:
-                            print("Fehler beim Umwandeln der Zeit:", e)
-
-
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
                         'departure': departure_time,
                         'destination': destination.attrib.get('name', 'Unbekannt'),
                     })
-                break  # Nur erste Fahrt
+                break  # nur erste Fahrt
 
         return connections
     except Exception as e:
