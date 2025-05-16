@@ -2,10 +2,14 @@ from flask import Flask, render_template
 import requests
 from datetime import datetime
 import xml.etree.ElementTree as ET
+import os
 
 app = Flask(__name__)
 
-ACCESS_ID = 'APIKEY'
+
+
+ACCESS_ID = os.environ.get('ACCESS_ID')
+
 ORIGIN_ID = '3016016'  # Darmstadt Schloss
 DEST_ID = '3004735'    # Darmstadt Berliner Allee
 
