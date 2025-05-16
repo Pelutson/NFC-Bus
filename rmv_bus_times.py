@@ -55,8 +55,14 @@ def fetch_connections():
                 line = leg.find('hafas:Product', ns)
 
                 if origin is not None and destination is not None and line is not None:
-                    time_attr = origin.attrib.get('time', '')
-                    departure_time = time_attr[11:16] if len(time_attr) >= 16 else 'Unbekannt'
+                    departure_time = 'Unbekannt'
+                    if 'time' in origin.attrib:
+                        try:
+                            dt = datetime.fromisoformat(origin.attrib['time'])
+                            departure_time = dt.strftime('%H:%M')
+                        except Exception as e:
+                            print("Fehler beim Umwandeln der Zeit:", e)
+
 
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
