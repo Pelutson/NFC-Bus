@@ -55,9 +55,14 @@ def fetch_connections():
                 line = leg.find('hafas:Product', ns)
 
                 if origin is not None and destination is not None and line is not None:
+                    departure_raw = origin.attrib.get('time', '')
+                    print("DEBUG: Abfahrtszeit:", departure_raw)
+
+                    departure_time = departure_raw[11:16] if len(departure_raw) >= 16 else 'Unbekannt'
+
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
-                        'departure': origin.attrib.get('time', '')[11:16],  # Nur Uhrzeit (HH:MM)
+                        'departure': departure_time,
                         'destination': destination.attrib.get('name', ''),
                     })
                 break  # Nur erste Fahrt
@@ -71,8 +76,6 @@ def fetch_connections():
 def index():
     connections = fetch_connections()
     return render_template('index.html', connections=connections)
-
-
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
