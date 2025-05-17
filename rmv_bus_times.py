@@ -9,10 +9,19 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# Option 1: aus .env-Datei
 ACCESS_ID = os.getenv('ACCESS_ID')
-SCHLOSS_ID = '3016016'       # Darmstadt Schloss
-ALLEE_ID = '3004735'         # Berliner Allee
-HBF_ID = '3000010'           # Darmstadt Hauptbahnhof
+
+# Option 2: direkt im Code (wenn du keine .env benutzt)
+if not ACCESS_ID:
+    ACCESS_ID = 'DEIN_ACCESS_ID_HIER'
+
+# RMV Haltestellen-IDs
+STOPS = {
+    "schloss": "3016016",
+    "allee": "3004735",
+    "hbf": "3000010"
+}
 
 def fetch_connections(origin_id, dest_id):
     url = 'https://www.rmv.de/hapi/trip'
@@ -28,7 +37,7 @@ def fetch_connections(origin_id, dest_id):
 
     response = requests.get(url, params=params)
     if response.status_code != 200:
-        print("Fehler bei API-Abfrage:", response.status_code)
+        print(f"Fehler bei API-Abfrage ({origin_id} ➝ {dest_id}):", response.status_code)
         return []
 
     try:
@@ -64,15 +73,18 @@ def fetch_connections(origin_id, dest_id):
                 break  # nur erste Fahrt
 
         return connections
+
     except Exception as e:
         print("Fehler beim Parsen:", e)
         return []
 
 @app.route('/')
 def index():
-    to_allee = fetch_connections(SCHLOSS_ID, ALLEE_ID)
-    to_schloss = fetch_connections(HBF_ID, SCHLOSS_ID)
-    return render_template('index.html', to_allee=to_allee, to_schloss=to_schloss)
+    schloss_zu_allee = fetch_connections(STOPS["schloss"], STOPS["allee"])
+    hbf_zu_schloss = fetch_connections(STOPS["hbf"], STOPS["schloss"])
+    return render_template('index.html',
+                           connections=schloss_zu_allee,
+                           hbf_connections=hbf_zu_schloss)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
