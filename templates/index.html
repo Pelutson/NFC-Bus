@@ -1,12 +1,15 @@
-<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <title>Busverbindungen Darmstadt Schloss nach Berliner Allee</title>
     <title>RMV Busverbindungen</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <title>Busverbindungen Darmstadt Schloss nach Berliner Allee</title>
     <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 600px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
         body {
             font-family: 'Inter', sans-serif;
             background: #f9f9f9;
@@ -73,13 +76,28 @@
             color: #777;
             font-size: 0.9em;
         }
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; max-width: 600px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
+    <h1>Busverbindungen von Darmstadt Schloss nach Berliner Allee</h1>
+    <p>Verbindungen in den nächsten 10 Minuten</p>
+    <table>
+        <tr>
+            <th>Linie</th>
+            <th>Abfahrtszeit</th>
+            <th>Ziel</th>
+        </tr>
+        {% for conn in connections %}
+        <tr>
+            <td>{{ conn.line }}</td>
+            <td>{{ conn.departure }}</td>
+            <td>{{ conn.destination }}</td>
+        </tr>
+        {% endfor %}
+        {% if not connections %}
+        <tr>
+            <td colspan="3">Keine Verbindungen in den nächsten 10 Minuten.</td>
+        </tr>
     <header>
         <h1>🚌 Busverbindungen: Darmstadt Schloss → Berliner Allee</h1>
         <div class="linkbox">
@@ -107,32 +125,13 @@
         <div class="no-connections">
             🚫 Keine Verbindungen in den nächsten Minuten.
         </div>
-    <h1>Busverbindungen von Darmstadt Schloss nach Berliner Allee</h1>
-    <p>Verbindungen in den nächsten 10 Minuten</p>
-    <table>
-        <tr>
-            <th>Linie</th>
-            <th>Abfahrtszeit</th>
-            <th>Ziel</th>
-        </tr>
-        {% for conn in connections %}
-        <tr>
-            <td>{{ conn.line }}</td>
-            <td>{{ conn.departure }}</td>
-            <td>{{ conn.destination }}</td>
-        </tr>
-        {% endfor %}
-        {% if not connections %}
-        <tr>
-            <td colspan="3">Keine Verbindungen in den nächsten 10 Minuten.</td>
-        </tr>
         {% endif %}
+    </table>
     </div>
 
     <div class="footer">
         &copy; {{ datetime.utcnow().year }} RMV Bus App – bereitgestellt von dir ✨
     </div>
-    </table>
 </body>
 </html>
 </html>
