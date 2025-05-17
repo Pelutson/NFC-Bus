@@ -5,18 +5,17 @@ import xml.etree.ElementTree as ET
 import os
 from dotenv import load_dotenv
 
+# .env laden
 load_dotenv()
 
 app = Flask(__name__)
 
-# Option 1: aus .env-Datei
+# Zugriffsschlüssel aus .env oder direkt definieren
 ACCESS_ID = os.getenv('ACCESS_ID')
-
-# Option 2: direkt im Code (wenn du keine .env benutzt)
 if not ACCESS_ID:
     ACCESS_ID = 'DEIN_ACCESS_ID_HIER'
 
-# RMV Haltestellen-IDs
+# RMV-Haltestellen-IDs
 STOPS = {
     "schloss": "3016016",
     "allee": "3004735",
@@ -80,11 +79,11 @@ def fetch_connections(origin_id, dest_id):
 
 @app.route('/')
 def index():
-    schloss_zu_allee = fetch_connections(STOPS["schloss"], STOPS["allee"])
-    hbf_zu_schloss = fetch_connections(STOPS["hbf"], STOPS["schloss"])
+    connections_to_allee = fetch_connections(STOPS["schloss"], STOPS["allee"])
+    connections_to_schloss = fetch_connections(STOPS["hbf"], STOPS["schloss"])
     return render_template('index.html',
-                           connections=schloss_zu_allee,
-                           hbf_connections=hbf_zu_schloss)
+                           connections_to_allee=connections_to_allee,
+                           connections_to_schloss=connections_to_schloss)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
