@@ -14,7 +14,6 @@ ACCESS_ID = os.getenv('ACCESS_ID')
 ORIGIN_ID = '3016016'  # Darmstadt Schloss
 DEST_ID = '3004735'    # Darmstadt Berliner Allee
 
-
 def fetch_connections():
     url = 'https://www.rmv.de/hapi/trip'
     params = {
@@ -57,13 +56,12 @@ def fetch_connections():
                 departure_time = "Unbekannt"
                 if origin is not None and 'time' in origin.attrib:
                     try:
-                        time_str = origin.attrib['time']
-                        if 'T' in time_str:
-                            departure_time = time_str.split('T')[1][:5]
-                        else:
-                            departure_time = time_str[:5]
+                        dt = datetime.fromisoformat(origin.attrib['time'])
+                        departure_time = dt.strftime('%H:%M')
                     except Exception as e:
                         print("Zeitformat-Fehler:", e)
+                departure_time = origin.attrib.get('time', '')[:5] if origin is not None else "Unbekannt"
+
 
                 if origin is not None and destination is not None and line is not None:
                     connections.append({
@@ -78,12 +76,10 @@ def fetch_connections():
         print("Fehler beim Parsen:", e)
         return []
 
-
 @app.route('/')
 def index():
     connections = fetch_connections()
     return render_template('index.html', connections=connections)
-
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
