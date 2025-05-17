@@ -53,13 +53,6 @@ def fetch_connections():
                 destination = leg.find('hafas:Destination', ns)
                 line = leg.find('hafas:Product', ns)
 
-                departure_time = "Unbekannt"
-                if origin is not None and 'time' in origin.attrib:
-                    try:
-                        dt = datetime.fromisoformat(origin.attrib['time'])
-                        departure_time = dt.strftime('%H:%M')
-                    except Exception as e:
-                        print("Zeitformat-Fehler:", e)
                 departure_time = origin.attrib.get('time', '')[:5] if origin is not None else "Unbekannt"
 
 
