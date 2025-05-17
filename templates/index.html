@@ -5,43 +5,62 @@
     <title>RMV Busverbindungen</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/61/61212.png">
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen font-sans text-gray-800">
 
-    <div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-        <h1 class="text-3xl font-bold text-center mb-4">🚍 RMV Busverbindungen</h1>
-        <p class="text-center text-gray-600 mb-6">Von <strong>Darmstadt Schloss</strong> nach <strong>Berliner Allee</strong></p>
-
-        <div class="overflow-x-auto">
-            <table class="min-w-full table-auto border border-gray-300">
-                <thead class="bg-gray-200">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Linie</th>
-                        <th class="px-4 py-2 text-left">Abfahrt</th>
-                        <th class="px-4 py-2 text-left">Ziel</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for conn in connections %}
-                    <tr class="border-t border-gray-300 hover:bg-gray-50">
-                        <td class="px-4 py-2">{{ conn.line }}</td>
-                        <td class="px-4 py-2">{{ conn.departure }}</td>
-                        <td class="px-4 py-2">{{ conn.destination }}</td>
-                    </tr>
-                    {% endfor %}
-                    {% if not connections %}
-                    <tr>
-                        <td colspan="3" class="px-4 py-4 text-center text-gray-500">Keine Verbindungen gefunden.</td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+    <header class="bg-blue-600 text-white py-6 shadow-md">
+        <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-3xl font-bold flex items-center gap-2">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5h15m-15 3h15m-1.5 4.5h-12m3-15h6a1.5 1.5 0 011.5 1.5V6h-9V4.5A1.5 1.5 0 018.25 3z" />
+                </svg>
+                RMV Busverbindungen
+            </h1>
+            <span class="hidden md:inline text-sm">Darmstadt Schloss → Berliner Allee</span>
         </div>
+    </header>
 
-        <div class="mt-6 text-center">
-            <a href="/" class="text-blue-600 hover:underline">Seite aktualisieren</a>
+    <main class="max-w-3xl mx-auto px-4 mt-10">
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <p class="text-center text-gray-500 mb-4">Live-Verbindungen in den nächsten Minuten</p>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-300 rounded-md">
+                    <thead class="bg-blue-100 text-blue-800">
+                        <tr>
+                            <th class="px-4 py-2 text-left">🚍 Linie</th>
+                            <th class="px-4 py-2 text-left">🕒 Abfahrt</th>
+                            <th class="px-4 py-2 text-left">🎯 Ziel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for conn in connections %}
+                        <tr class="border-t border-gray-200 hover:bg-blue-50">
+                            <td class="px-4 py-2 font-medium">{{ conn.line }}</td>
+                            <td class="px-4 py-2">{{ conn.departure }}</td>
+                            <td class="px-4 py-2">{{ conn.destination }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not connections %}
+                        <tr>
+                            <td colspan="3" class="px-4 py-4 text-center text-gray-500">Keine Verbindungen gefunden.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-center mt-6">
+                <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition">
+                    🔄 Aktualisieren
+                </a>
+            </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="text-center mt-12 text-sm text-gray-500">
+        &copy; {{ now().year }} RMV Bus App – entwickelt mit ❤️
+    </footer>
 
 </body>
 </html>
