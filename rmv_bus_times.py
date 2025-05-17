@@ -5,19 +5,21 @@ import xml.etree.ElementTree as ET
 import os
 from dotenv import load_dotenv
 
+# .env-Datei laden
 load_dotenv()
+
 app = Flask(__name__)
 
 ACCESS_ID = os.getenv('ACCESS_ID')
 if not ACCESS_ID:
-    ACCESS_ID = 'DEIN_ACCESS_ID_HIER'  # hier dein Key eintragen
+    ACCESS_ID = 'HIER_DEINE_ACCESS_ID'
 
-# RMV Stop-IDs
+# Haltestellen-IDs
 STOPS = {
-    "schloss": "3016016",
-    "allee": "3004735",
-    "hbf": "3000010",
-    "luisenplatz": "3016001"
+    "schloss": "3016016",       # Darmstadt Schloss
+    "allee": "3004735",         # Berliner Allee
+    "hbf": "3000010",           # Darmstadt Hauptbahnhof
+    "luisenplatz": "3016001"    # Darmstadt Luisenplatz
 }
 
 def fetch_connections(origin_id, dest_id):
@@ -29,7 +31,7 @@ def fetch_connections(origin_id, dest_id):
         'format': 'xml',
         'date': datetime.now().strftime('%Y-%m-%d'),
         'time': datetime.now().strftime('%H:%M'),
-        'numF': 5,
+        'numF': 6,
     }
 
     response = requests.get(url, params=params)
@@ -48,42 +50,53 @@ def fetch_connections(origin_id, dest_id):
             if leg_list is None:
                 continue
 
-            leg = leg_list.find('hafas:Leg', ns)
-            if leg is None:
-                continue
+            legs = leg_list.findall('hafas:Leg', ns)
+            if not legs:
+                leg = leg_list.find('hafas:Leg', ns)
+                if leg is not None:
+                    legs = [leg]
 
-            origin = leg.find('hafas:Origin', ns)
-            destination = leg.find('hafas:Destination', ns)
-            line = leg.find('hafas:Product', ns)
+            for leg in legs:
+                origin = leg.find('hafas:Origin', ns)
+                destination = leg.find('hafas:Destination', ns)
+                line = leg.find('hafas:Product', ns)
 
-            if origin is not None and destination is not None and line is not None:
                 time_str = origin.attrib.get('time', '')
-                if 'T' in time_str:
-                    departure = time_str.split('T')[1][:5]  # Uhrzeit HH:MM
-                else:
+                try:
+                    if 'T' in time_str:
+                        departure = time_str.split('T')[1][:5]  # HH:MM
+                    elif len(time_str) >= 5:
+                        departure = time_str[:5]
+                    else:
+                        departure = "Unbekannt"
+                except Exception as e:
+                    print("Fehler beim Lesen der Uhrzeit:", e)
                     departure = "Unbekannt"
 
-                connections.append({
-                    'line': line.attrib.get('line', 'Unbekannt'),
-                    'departure': departure,
-                    'destination': destination.attrib.get('name', 'Unbekannt'),
-                })
+                if origin is not None and destination is not None and line is not None:
+                    connections.append({
+                        'line': line.attrib.get('line', 'Unbekannt'),
+                        'departure': departure,
+                        'destination': destination.attrib.get('name', 'Unbekannt'),
+                    })
+                break  # nur erste Fahrt
 
         return connections
+
     except Exception as e:
         print("Fehler beim Parsen:", e)
         return []
 
 @app.route('/')
 def index():
-    connections_to_allee = fetch_connections(STOPS['schloss'], STOPS['allee'])
-    hbf_to_schloss = fetch_connections(STOPS['hbf'], STOPS['schloss'])
-    hbf_to_luisenplatz = fetch_connections(STOPS['hbf'], STOPS['luisenplatz'])
+    schloss_zu_allee = fetch_connections(STOPS["schloss"], STOPS["allee"])
+    hbf_zu_schloss = fetch_connections(STOPS["hbf"], STOPS["schloss"])
+    hbf_zu_luisenplatz = fetch_connections(STOPS["hbf"], STOPS["luisenplatz"])
     return render_template('index.html',
-                           connections_to_allee=connections_to_allee,
-                           hbf_to_schloss=hbf_to_schloss,
-                           hbf_to_luisenplatz=hbf_to_luisenplatz)
+                           connections=schloss_zu_allee,
+                           hbf_connections=hbf_zu_schloss,
+                           luisenplatz_connections=hbf_zu_luisenplatz)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=False, host="0.0.0.0", port=port)
