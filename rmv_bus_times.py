@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 import requests
 from datetime import datetime
 import xml.etree.ElementTree as ET
@@ -10,8 +10,9 @@ load_dotenv()
 app = Flask(__name__)
 
 ACCESS_ID = os.getenv('ACCESS_ID')
-SCHLOSS_ID = '3016016'  # Darmstadt Schloss
-ALLEE_ID = '3004735'    # Berliner Allee
+SCHLOSS_ID = '3016016'       # Darmstadt Schloss
+ALLEE_ID = '3004735'         # Berliner Allee
+HBF_ID = '3000010'           # Darmstadt Hauptbahnhof
 
 def fetch_connections(origin_id, dest_id):
     url = 'https://www.rmv.de/hapi/trip'
@@ -52,8 +53,9 @@ def fetch_connections(origin_id, dest_id):
                 destination = leg.find('hafas:Destination', ns)
                 line = leg.find('hafas:Product', ns)
 
+                departure_time = origin.attrib.get('time', '')[11:16] if origin is not None else "Unbekannt"
+
                 if origin is not None and destination is not None and line is not None:
-                    departure_time = origin.attrib.get('time', '')[11:16]  # Nur HH:MM
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
                         'departure': departure_time,
@@ -68,13 +70,9 @@ def fetch_connections(origin_id, dest_id):
 
 @app.route('/')
 def index():
-    connections_to_allee = fetch_connections(SCHLOSS_ID, ALLEE_ID)
-    connections_to_schloss = fetch_connections(ALLEE_ID, SCHLOSS_ID)
-    return render_template(
-        'index.html',
-        connections_to_allee=connections_to_allee,
-        connections_to_schloss=connections_to_schloss
-    )
+    to_allee = fetch_connections(SCHLOSS_ID, ALLEE_ID)
+    to_schloss = fetch_connections(HBF_ID, SCHLOSS_ID)
+    return render_template('index.html', to_allee=to_allee, to_schloss=to_schloss)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
