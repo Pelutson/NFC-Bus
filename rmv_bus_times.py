@@ -1,25 +1,19 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 import requests
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import os
-from dotenv import load_dotenv
-
-# .env-Datei laden
-load_dotenv()
 
 app = Flask(__name__)
 
-ACCESS_ID = os.getenv('ACCESS_ID')
-if not ACCESS_ID:
-    ACCESS_ID = 'HIER_DEINE_ACCESS_ID'
+# Direkt eingetragener API-Key (nicht öffentlich machen!)
+ACCESS_ID = 'deine_access_id_hier'
 
-# Haltestellen-IDs
+# RMV Haltestellen-IDs
 STOPS = {
-    "schloss": "3016016",       # Darmstadt Schloss
-    "allee": "3004735",         # Berliner Allee
-    "hbf": "3000010",           # Darmstadt Hauptbahnhof
-    "luisenplatz": "3016001"    # Darmstadt Luisenplatz
+    "schloss": "3016016",
+    "allee": "3004735",
+    "hbf": "3000010"
 }
 
 def fetch_connections(origin_id, dest_id):
@@ -61,28 +55,23 @@ def fetch_connections(origin_id, dest_id):
                 destination = leg.find('hafas:Destination', ns)
                 line = leg.find('hafas:Product', ns)
 
-                time_str = origin.attrib.get('time', '')
-                try:
-                    if 'T' in time_str:
-                        departure = time_str.split('T')[1][:5]  # HH:MM
-                    elif len(time_str) >= 5:
-                        departure = time_str[:5]
+                departure_time = "Unbekannt"
+                if origin is not None and "time" in origin.attrib:
+                    time_str = origin.attrib["time"]
+                    if "T" in time_str:
+                        departure_time = time_str.split("T")[1][:5]
                     else:
-                        departure = "Unbekannt"
-                except Exception as e:
-                    print("Fehler beim Lesen der Uhrzeit:", e)
-                    departure = "Unbekannt"
+                        departure_time = time_str[:5]
 
                 if origin is not None and destination is not None and line is not None:
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
-                        'departure': departure,
+                        'departure': departure_time,
                         'destination': destination.attrib.get('name', 'Unbekannt'),
                     })
-                break  # nur erste Fahrt
+                break
 
         return connections
-
     except Exception as e:
         print("Fehler beim Parsen:", e)
         return []
@@ -91,11 +80,9 @@ def fetch_connections(origin_id, dest_id):
 def index():
     schloss_zu_allee = fetch_connections(STOPS["schloss"], STOPS["allee"])
     hbf_zu_schloss = fetch_connections(STOPS["hbf"], STOPS["schloss"])
-    hbf_zu_luisenplatz = fetch_connections(STOPS["hbf"], STOPS["luisenplatz"])
     return render_template('index.html',
                            connections=schloss_zu_allee,
-                           hbf_connections=hbf_zu_schloss,
-                           luisenplatz_connections=hbf_zu_luisenplatz)
+                           hbf_connections=hbf_zu_schloss)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
