@@ -1,81 +1,13 @@
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <title>Busverbindungen Darmstadt Schloss nach Berliner Allee</title>
-    <title>RMV Busverbindungen</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         table { border-collapse: collapse; width: 100%; max-width: 600px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f9f9f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #2e7d32;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
-        .linkbox {
-            margin-top: 10px;
-            font-size: 1rem;
-        }
-        .linkbox a {
-            color: #bbf7d0;
-            text-decoration: underline;
-            word-break: break-word;
-        }
-        .container {
-            padding: 20px;
-            max-width: 800px;
-            margin: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        }
-        th, td {
-            padding: 12px 16px;
-            text-align: left;
-        }
-        th {
-            background-color: #eeeeee;
-            font-weight: 600;
-        }
-        tr:nth-child(even) {
-            background-color: #f6f6f6;
-        }
-        .no-connections {
-            text-align: center;
-            padding: 20px;
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .footer {
-            text-align: center;
-            padding: 10px;
-            color: #777;
-            font-size: 0.9em;
-        }
     </style>
 </head>
 <body>
@@ -98,40 +30,7 @@
         <tr>
             <td colspan="3">Keine Verbindungen in den nächsten 10 Minuten.</td>
         </tr>
-    <header>
-        <h1>🚌 Busverbindungen: Darmstadt Schloss → Berliner Allee</h1>
-        <div class="linkbox">
-            📎 <a href="https://bus.mieheplana.com" target="_blank">Zur öffentlichen Webseite</a>
-        </div>
-    </header>
-
-    <div class="container">
-        {% if connections %}
-        <table>
-            <tr>
-                <th>🚏 Linie</th>
-                <th>⏰ Abfahrt</th>
-                <th>🎯 Ziel</th>
-            </tr>
-            {% for conn in connections %}
-            <tr>
-                <td>{{ conn.line }}</td>
-                <td>{{ conn.departure }}</td>
-                <td>{{ conn.destination }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% else %}
-        <div class="no-connections">
-            🚫 Keine Verbindungen in den nächsten Minuten.
-        </div>
         {% endif %}
     </table>
-    </div>
-
-    <div class="footer">
-        &copy; {{ datetime.utcnow().year }} RMV Bus App – bereitgestellt von dir ✨
-    </div>
 </body>
-</html>
 </html>
