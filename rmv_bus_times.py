@@ -1,3 +1,4 @@
+# rmv_bus_times.py
 from flask import Flask, render_template
 import requests
 from datetime import datetime
@@ -10,16 +11,15 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Zugriffsschlüssel aus .env oder direkt definieren
-ACCESS_ID = os.getenv('ACCESS_ID')
-if not ACCESS_ID:
-    ACCESS_ID = 'DEIN_ACCESS_ID_HIER'
+# API-Key aus Umgebungsvariable oder direkt eingeben
+ACCESS_ID = os.getenv('ACCESS_ID') or 'DEIN_ACCESS_ID_HIER'
 
-# RMV-Haltestellen-IDs
+# RMV Haltestellen-IDs (Luisenplatz ID muss ggf. aktualisiert werden)
 STOPS = {
     "schloss": "3016016",
     "allee": "3004735",
-    "hbf": "3000010"
+    "hbf": "3000010",
+    "luisenplatz": "3016001"  # Beispiel-ID, bitte ggf. verifizieren
 }
 
 def fetch_connections(origin_id, dest_id):
@@ -36,7 +36,7 @@ def fetch_connections(origin_id, dest_id):
 
     response = requests.get(url, params=params)
     if response.status_code != 200:
-        print(f"Fehler bei API-Abfrage ({origin_id} ➝ {dest_id}):", response.status_code)
+        print(f"Fehler bei API-Abfrage ({origin_id} ➔ {dest_id}):", response.status_code)
         return []
 
     try:
@@ -69,7 +69,7 @@ def fetch_connections(origin_id, dest_id):
                         'departure': departure_time,
                         'destination': destination.attrib.get('name', 'Unbekannt'),
                     })
-                break  # nur erste Fahrt
+                break
 
         return connections
 
@@ -81,9 +81,11 @@ def fetch_connections(origin_id, dest_id):
 def index():
     connections_to_allee = fetch_connections(STOPS["schloss"], STOPS["allee"])
     connections_to_schloss = fetch_connections(STOPS["hbf"], STOPS["schloss"])
+    connections_to_luisenplatz = fetch_connections(STOPS["hbf"], STOPS["luisenplatz"])
     return render_template('index.html',
                            connections_to_allee=connections_to_allee,
-                           connections_to_schloss=connections_to_schloss)
+                           connections_to_schloss=connections_to_schloss,
+                           connections_to_luisenplatz=connections_to_luisenplatz)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
