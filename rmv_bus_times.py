@@ -3,25 +3,24 @@ import requests
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import os
+from dotenv import load_dotenv
+
+# .env laden
+load_dotenv()
 
 app = Flask(__name__)
 
-# Direkt eingetragener API-Key (nicht öffentlich machen!)
-ACCESS_ID = 'deine_access_id_hier'
+ACCESS_ID = os.getenv('ACCESS_ID')
+ORIGIN_ID = '3016016'  # Darmstadt Schloss
+DEST_ID = '3004735'    # Darmstadt Berliner Allee
 
-# RMV Haltestellen-IDs
-STOPS = {
-    "schloss": "3016016",
-    "allee": "3004735",
-    "hbf": "3000010"
-}
 
-def fetch_connections(origin_id, dest_id):
+def fetch_connections():
     url = 'https://www.rmv.de/hapi/trip'
     params = {
         'accessId': ACCESS_ID,
-        'originId': origin_id,
-        'destId': dest_id,
+        'originId': ORIGIN_ID,
+        'destId': DEST_ID,
         'format': 'xml',
         'date': datetime.now().strftime('%Y-%m-%d'),
         'time': datetime.now().strftime('%H:%M'),
@@ -30,7 +29,7 @@ def fetch_connections(origin_id, dest_id):
 
     response = requests.get(url, params=params)
     if response.status_code != 200:
-        print(f"Fehler bei API-Abfrage ({origin_id} ➝ {dest_id}):", response.status_code)
+        print("Fehler bei API-Abfrage:", response.status_code)
         return []
 
     try:
@@ -56,12 +55,15 @@ def fetch_connections(origin_id, dest_id):
                 line = leg.find('hafas:Product', ns)
 
                 departure_time = "Unbekannt"
-                if origin is not None and "time" in origin.attrib:
-                    time_str = origin.attrib["time"]
-                    if "T" in time_str:
-                        departure_time = time_str.split("T")[1][:5]
-                    else:
-                        departure_time = time_str[:5]
+                if origin is not None and 'time' in origin.attrib:
+                    try:
+                        time_str = origin.attrib['time']
+                        if 'T' in time_str:
+                            departure_time = time_str.split('T')[1][:5]
+                        else:
+                            departure_time = time_str[:5]
+                    except Exception as e:
+                        print("Zeitformat-Fehler:", e)
 
                 if origin is not None and destination is not None and line is not None:
                     connections.append({
@@ -69,20 +71,19 @@ def fetch_connections(origin_id, dest_id):
                         'departure': departure_time,
                         'destination': destination.attrib.get('name', 'Unbekannt'),
                     })
-                break
+                break  # nur erste Fahrt
 
         return connections
     except Exception as e:
         print("Fehler beim Parsen:", e)
         return []
 
+
 @app.route('/')
 def index():
-    schloss_zu_allee = fetch_connections(STOPS["schloss"], STOPS["allee"])
-    hbf_zu_schloss = fetch_connections(STOPS["hbf"], STOPS["schloss"])
-    return render_template('index.html',
-                           connections=schloss_zu_allee,
-                           hbf_connections=hbf_zu_schloss)
+    connections = fetch_connections()
+    return render_template('index.html', connections=connections)
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
