@@ -71,7 +71,7 @@
 <body>
     <header>
         <h1>🚌 RMV Busverbindungen</h1>
-        <p>Darmstadt Schloss ⇆ Berliner Allee & Hauptbahnhof</p>
+        <p>Live-Fahrpläne aus Darmstadt</p>
     </header>
 
     <div class="container">
@@ -96,21 +96,42 @@
             {% endif %}
         </table>
 
-        <h2>⬅️ Vom Hauptbahnhof zum Schloss</h2>
+        <h2>➡️ Vom Hauptbahnhof zum Schloss</h2>
         <table>
             <tr>
                 <th>Linie</th>
                 <th>Abfahrtszeit</th>
                 <th>Ziel</th>
             </tr>
-            {% for conn in connections_to_schloss %}
+            {% for conn in hbf_to_schloss %}
             <tr>
                 <td>{{ conn.line }}</td>
                 <td>{{ conn.departure }}</td>
                 <td>{{ conn.destination }}</td>
             </tr>
             {% endfor %}
-            {% if not connections_to_schloss %}
+            {% if not hbf_to_schloss %}
+            <tr>
+                <td colspan="3" class="no-data">Keine Verbindungen gefunden.</td>
+            </tr>
+            {% endif %}
+        </table>
+
+        <h2>➡️ Vom Hauptbahnhof zum Luisenplatz</h2>
+        <table>
+            <tr>
+                <th>Linie</th>
+                <th>Abfahrtszeit</th>
+                <th>Ziel</th>
+            </tr>
+            {% for conn in hbf_to_luisenplatz %}
+            <tr>
+                <td>{{ conn.line }}</td>
+                <td>{{ conn.departure }}</td>
+                <td>{{ conn.destination }}</td>
+            </tr>
+            {% endfor %}
+            {% if not hbf_to_luisenplatz %}
             <tr>
                 <td colspan="3" class="no-data">Keine Verbindungen gefunden.</td>
             </tr>
