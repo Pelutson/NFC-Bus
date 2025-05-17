@@ -26,10 +26,13 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+        h2 {
+            margin-top: 40px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         th, td {
             padding: 12px 16px;
@@ -44,13 +47,6 @@
             padding: 20px;
             color: #999;
         }
-        footer {
-            text-align: center;
-            padding: 16px;
-            font-size: 14px;
-            color: #666;
-            margin-top: 40px;
-        }
         .link {
             text-align: center;
             margin-top: 20px;
@@ -63,34 +59,60 @@
         .link a:hover {
             text-decoration: underline;
         }
+        footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 14px;
+            color: #666;
+            margin-top: 40px;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>🚌 RMV Busverbindungen</h1>
-        <p>Darmstadt Schloss ➜ Berliner Allee</p>
+        <p>Darmstadt Schloss ⇆ Berliner Allee</p>
     </header>
 
     <div class="container">
-        <h2>Aktuelle Abfahrten</h2>
-        <p>Verbindungen in den nächsten Minuten:</p>
-
+        <h2>➡️ Vom Schloss zur Berliner Allee</h2>
         <table>
             <tr>
                 <th>Linie</th>
                 <th>Abfahrtszeit</th>
                 <th>Ziel</th>
             </tr>
-            {% for conn in connections %}
+            {% for conn in connections_to_allee %}
             <tr>
                 <td>{{ conn.line }}</td>
                 <td>{{ conn.departure }}</td>
                 <td>{{ conn.destination }}</td>
             </tr>
             {% endfor %}
-            {% if not connections %}
+            {% if not connections_to_allee %}
             <tr>
-                <td colspan="3" class="no-data">Keine Verbindungen in den nächsten Minuten.</td>
+                <td colspan="3" class="no-data">Keine Verbindungen gefunden.</td>
+            </tr>
+            {% endif %}
+        </table>
+
+        <h2>⬅️ Von der Berliner Allee zum Schloss</h2>
+        <table>
+            <tr>
+                <th>Linie</th>
+                <th>Abfahrtszeit</th>
+                <th>Ziel</th>
+            </tr>
+            {% for conn in connections_to_schloss %}
+            <tr>
+                <td>{{ conn.line }}</td>
+                <td>{{ conn.departure }}</td>
+                <td>{{ conn.destination }}</td>
+            </tr>
+            {% endfor %}
+            {% if not connections_to_schloss %}
+            <tr>
+                <td colspan="3" class="no-data">Keine Verbindungen gefunden.</td>
             </tr>
             {% endif %}
         </table>

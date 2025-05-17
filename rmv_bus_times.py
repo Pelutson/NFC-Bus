@@ -1,25 +1,24 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import os
 from dotenv import load_dotenv
 
-# .env laden
 load_dotenv()
 
 app = Flask(__name__)
 
 ACCESS_ID = os.getenv('ACCESS_ID')
-ORIGIN_ID = '3016016'  # Darmstadt Schloss
-DEST_ID = '3004735'    # Darmstadt Berliner Allee
+SCHLOSS_ID = '3016016'  # Darmstadt Schloss
+ALLEE_ID = '3004735'    # Berliner Allee
 
-def fetch_connections():
+def fetch_connections(origin_id, dest_id):
     url = 'https://www.rmv.de/hapi/trip'
     params = {
         'accessId': ACCESS_ID,
-        'originId': ORIGIN_ID,
-        'destId': DEST_ID,
+        'originId': origin_id,
+        'destId': dest_id,
         'format': 'xml',
         'date': datetime.now().strftime('%Y-%m-%d'),
         'time': datetime.now().strftime('%H:%M'),
@@ -53,10 +52,8 @@ def fetch_connections():
                 destination = leg.find('hafas:Destination', ns)
                 line = leg.find('hafas:Product', ns)
 
-                departure_time = origin.attrib.get('time', '')[:5] if origin is not None else "Unbekannt"
-
-
                 if origin is not None and destination is not None and line is not None:
+                    departure_time = origin.attrib.get('time', '')[11:16]  # Nur HH:MM
                     connections.append({
                         'line': line.attrib.get('line', 'Unbekannt'),
                         'departure': departure_time,
@@ -71,8 +68,13 @@ def fetch_connections():
 
 @app.route('/')
 def index():
-    connections = fetch_connections()
-    return render_template('index.html', connections=connections)
+    connections_to_allee = fetch_connections(SCHLOSS_ID, ALLEE_ID)
+    connections_to_schloss = fetch_connections(ALLEE_ID, SCHLOSS_ID)
+    return render_template(
+        'index.html',
+        connections_to_allee=connections_to_allee,
+        connections_to_schloss=connections_to_schloss
+    )
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
